@@ -1,0 +1,26 @@
+services:
+  ide:
+    build:
+      context: ./ide
+      dockerfile: Containerfile
+    container_name: go-ide
+    volumes:
+      - /home/mniranja/source:/workspace:z
+      - ollama_storage:/root/.ollama
+    ports:
+      - "11434:11434"
+    devices:
+     - /dev/dri/renderD128:/dev/dri/renderD128
+     - /dev/accel:/dev/accel
+    restart: unless-stopped
+  lsp:
+    build:
+      context: ./lsp
+      dockerfile: Containerfile
+    container_name: go-lsp
+    restart: unless-stopped
+    # Expose gopls port if you want to connect from host or other containers
+    ports:
+      - "7050:7050"
+volumes:
+  ollama_storage:  # Defines the model database bloc

@@ -14,9 +14,6 @@ ENV TERM "screen-256color"
 # set environment variables and scripts
 COPY bashrc /root/.bashrc
 
-# copy oc binary
-COPY oc /usr/local/bin
-
 # create emacs directories
 RUN mkdir -p ~/.emacs.d/lisp \
     mkdir  ~/.emacs.d/backup
@@ -41,3 +38,25 @@ COPY lsp.el /root/.emacs.d/lisp/lsp.el
 
 # Install emacs packages
 RUN emacs --batch -l /root/.emacs.d/init.el
+
+# === Ollama Installation (Fedora native - more reliable) ===
+RUN dnf install -y ollama curl && \
+    dnf clean all
+
+# Create directory and set permissions
+RUN mkdir -p /root/.ollama && \
+    chmod 755 /root/.ollama
+
+# Environment for Ollama
+ENV OLLAMA_HOST=0.0.0.0
+ENV OLLAMA_ORIGINS=*
+EXPOSE 11434
+
+# Copy entrypoint
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# Install emacs packages (add more here if needed)
+RUN emacs --batch -l /root/.emacs.d/init.el
+
+ENTRYPOINT ["/entrypoint.sh"]
